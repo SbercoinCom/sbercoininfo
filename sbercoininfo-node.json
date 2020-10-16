@@ -1,0 +1,41 @@
+{
+  "version": "0.0.1",
+  "chain": "mainnet",
+  "services": [
+    "db",
+    "p2p",
+    "header",
+    "block",
+    "transaction",
+    "contract",
+    "mempool",
+    "server"
+  ],
+  "servicesConfig": {
+    "db": {
+      "mysql": {
+        "uri": "mysql://root:explorer@localhost/sbercoin1"
+      },
+      "rpc": {
+        "protocol": "http",
+        "host": "localhost",
+        "port": 3889,
+        "user": "exploreradmin",
+        "password": "explorer"
+      }
+    },
+    "p2p": {
+      "peers": [
+        {
+          "ip": {
+            "v4": "127.0.0.1"
+          },
+          "port": 1841
+        }
+      ]
+    },
+    "server": {
+      "port": 3001
+    }
+  }
+}
