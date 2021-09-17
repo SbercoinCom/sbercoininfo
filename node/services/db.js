@@ -12,6 +12,7 @@ const generateContractTransaction = require('../models/contract-transaction')
 const generateBalanceChange = require('../models/balance-change')
 const generateContract = require('../models/contract')
 const generateToken = require('../models/token')
+const generateDelegation = require('../models/delegation')
 const Service = require('./base')
 
 class DBService extends Service {
@@ -90,6 +91,7 @@ class DBService extends Service {
     generateBalanceChange(this.#sequelize)
     generateContract(this.#sequelize)
     generateToken(this.#sequelize)
+    generateDelegation(this.#sequelize)
     this.#Tip = this.#sequelize.models.tip
   }
 

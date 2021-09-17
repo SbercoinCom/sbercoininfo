@@ -1,9 +1,9 @@
 # How to Deploy sbercoininfo
 
 sbercoininfo is splitted into 3 repos:
-* [https://github.com/Sbercoin.com-SBER/sbercoininfo](https://github.com/Sbercoin.com-SBER/sbercoininfo)
-* [https://github.com/Sbercoin.com-SBER/sbercoininfo-api](https://github.com/Sbercoin.com-SBER/sbercoininfo-api)
-* [https://github.com/Sbercoin.com-SBER/sbercoininfo-ui](https://github.com/Sbercoin.com-SBER/sbercoininfo-ui)
+* [https://github.com/SbercoinCom/sbercoininfo](https://github.com/SbercoinCom/sbercoininfo)
+* [https://github.com/SbercoinCom/sbercoininfo-api](https://github.com/SbercoinCom/sbercoininfo-api)
+* [https://github.com/SbercoinCom/sbercoininfo-ui](https://github.com/SbercoinCom/sbercoininfo-ui)
 
 ## Prerequisites
 
@@ -12,12 +12,12 @@ sbercoininfo is splitted into 3 repos:
 * redis v5.0+
 
 ## Deploy sbercoin core
-1. `git clone --recursive https://github.com/Sbercoin.com-SBER/sbercoinchain-core.git --branch=sbercoininfo`
-2. Follow the instructions of [https://github.com/Sbercoin.com-SBER/sbercoinchain-core/blob/master/README.md#building-sbercoin-core](https://github.com/Sbercoin.com-SBER/sbercoinchain-core/blob/master/README.md#building-sbercoin-core) to build sbercoin
+1. `git clone --recursive https://github.com/SbercoinCom/sbercoin.com.git`
+2. Follow the instructions of [https://github.com/SbercoinCom/sbercoin.com/blob/master/README.md#building-sbercoincom-core](https://github.com/SbercoinCom/sbercoin.com/blob/master/README.md#building-sbercoincom-core) to build sbercoin
 3. Run `sbercoind` with `-logevents=1` enabled
 
 ## Deploy sbercoininfo
-1. `git clone https://github.com/Sbercoin.com-SBER/sbercoininfo.git`
+1. `git clone https://github.com/SbercoinCom/sbercoininfo.git`
 2. `cd sbercoininfo && npm install`
 3. Create a mysql database and import [docs/structure.sql](structure.sql)
 4. Edit file `sbercoininfo-node.json` and change the configurations if needed.
@@ -26,7 +26,7 @@ sbercoininfo is splitted into 3 repos:
 It is strongly recommended to run `sbercoininfo` under a process manager (like `pm2`), to restart the process when `sbercoininfo` crashes.
 
 ## Deploy sbercoininfo-api
-1. `git clone https://github.com/Sbercoin.com-SBER/sbercoininfo-api.git`
+1. `git clone https://github.com/SbercoinCom/sbercoininfo-api.git`
 2. `cd sbercoininfo-api && npm install`
 3. Create file `config/config.prod.js`, write your configurations into `config/config.prod.js` such as:
     ```javascript
@@ -47,7 +47,7 @@ It is strongly recommended to run `sbercoininfo` under a process manager (like `
 
 ## Deploy sbercoininfo-ui
 This repo is optional, you may not deploy it if you don't need UI.
-1. `git clone https://github.com/Sbercoin.com-SBER/sbercoininfo-ui.git`
+1. `git clone https://github.com/SbercoinCom/sbercoininfo-ui.git`
 2. `cd sbercoininfo-ui && npm install`
 3. Edit `package.json` for example:
    * Edit `script.build` to `"build": "SBERINFO_API_BASE_CLIENT=/api/ SBERINFO_API_BASE_SERVER=http://localhost:7001/ SBERINFO_API_BASE_WS=//example.com/ nuxt build"` in `package.json` to set the api URL base

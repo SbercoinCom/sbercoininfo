@@ -1,5 +1,5 @@
 # sbercoininfo
 
-[API documentation](https://github.com/Sbercoin.com-SBER/sbercoininfo-api/blob/master/README.md)
+[API documentation](https://github.com/SbercoinCom/sbercoininfo-api/blob/master/README.md)
 
-[Deploy documentation](https://github.com/Sbercoin.com-SBER/sbercoininfo/blob/master/doc/deploy.md)
+[Deploy documentation](https://github.com/SbercoinCom/sbercoininfo/blob/master/doc/deploy.md)

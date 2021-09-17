@@ -10,6 +10,8 @@ const balanceOfABI = Solidity.qrc20ABIs.find(abi => abi.name === 'balanceOf')
 const ownerOfABI = Solidity.qrc721ABIs.find(abi => abi.name === 'ownerOf')
 const transferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'transfer')
 const TransferABI = Solidity.qrc20ABIs.find(abi => abi.name === 'Transfer')
+const AddDelegationABI = Solidity.offlineStakingABIs.find(abi => abi.name === 'AddDelegation')
+const RemoveDelegationABI = Solidity.offlineStakingABIs.find(abi => abi.name === 'RemoveDelegation')
 
 class ContractService extends Service {
   #tip = null
@@ -26,6 +28,7 @@ class ContractService extends Service {
   #QRC20Balance = null
   #QRC721 = null
   #QRC721Token = null
+  #Delegation = null
 
   static get dependencies() {
     return ['block', 'db', 'transaction']
@@ -45,6 +48,7 @@ class ContractService extends Service {
     this.#QRC20Balance = this.node.getModel('qrc20_balance')
     this.#QRC721 = this.node.getModel('qrc721')
     this.#QRC721Token = this.node.getModel('qrc721_token')
+    this.#Delegation = this.node.getModel('delegation')
     this.#tip = await this.node.getServiceTip(this.name)
     let blockTip = await this.node.getBlockTip()
     if (this.#tip.height > blockTip.height) {
@@ -341,27 +345,45 @@ class ContractService extends Service {
     let totalSupplyChanges = new Set()
     let contractsToCreate = new Set()
     for (let {contractAddress, logs} of block.receipts || []) {
-      for (let {address, topics} of logs) {
-        if (Buffer.compare(address, contractAddress) !== 0) {
-          contractsToCreate.add(address.toString('hex'))
-        }
-        if (topics.length >= 3 && Buffer.compare(topics[0], TransferABI.id) === 0) {
-          let sender = topics[1].slice(12)
-          let receiver = topics[2].slice(12)
-          if (topics.length === 3) {
-            if (Buffer.compare(sender, Buffer.alloc(20)) !== 0) {
-              balanceChanges.add(`${address.toString('hex')}:${sender.toString('hex')}`)
-            }
-            if (Buffer.compare(receiver, Buffer.alloc(20)) !== 0) {
-              balanceChanges.add(`${address.toString('hex')}:${receiver.toString('hex')}`)
-            }
-          } else if (topics.length === 4) {
-            if (Buffer.compare(receiver, Buffer.alloc(20)) !== 0) {
-              tokenHolders.set(`${address.toString('hex')}:${topics[3].toString('hex')}`, receiver)
-            }
+      //process delegation-contract
+      if (Buffer.compare(contractAddress,  Buffer.from('0000000000000000000000000000000000000086', 'hex')) === 0) {
+        for (let {topics, data} of logs) {
+          if (topics.length >= 3 && Buffer.compare(topics[0], AddDelegationABI.id) === 0) {
+            let allDelegations = await this.#Delegation.findAll({
+              attributes: ['_id']
+            })
+            let fee = parseInt(data.slice(0, 32).toString('hex'), 16)
+            let delegation = new this.#Delegation({_id: allDelegations.length + 1, superstakerData: topics[1].slice(12), delegatorData: topics[2].slice(12), fee: fee, isActive: true})
+            await delegation.save()
           }
-          if (Buffer.compare(sender, Buffer.alloc(20)) === 0 || Buffer.compare(receiver, Buffer.alloc(20)) === 0) {
-            totalSupplyChanges.add(address.toString('hex'))
+          else if (topics.length >= 3 && Buffer.compare(topics[0], RemoveDelegationABI.id) === 0) {
+            await this.#Delegation.update({isActive: false}, {where: {delegatorData: topics[2].slice(12), superstakerData: topics[1].slice(12), isActive: true}})
+          }
+        }
+      }
+      else {
+        for (let {address, topics} of logs) {
+          if (Buffer.compare(address, contractAddress) !== 0) {
+            contractsToCreate.add(address.toString('hex'))
+          }
+          if (topics.length >= 3 && Buffer.compare(topics[0], TransferABI.id) === 0) {
+            let sender = topics[1].slice(12)
+            let receiver = topics[2].slice(12)
+            if (topics.length === 3) {
+              if (Buffer.compare(sender, Buffer.alloc(20)) !== 0) {
+                balanceChanges.add(`${address.toString('hex')}:${sender.toString('hex')}`)
+              }
+              if (Buffer.compare(receiver, Buffer.alloc(20)) !== 0) {
+                balanceChanges.add(`${address.toString('hex')}:${receiver.toString('hex')}`)
+              }
+            } else if (topics.length === 4) {
+              if (Buffer.compare(receiver, Buffer.alloc(20)) !== 0) {
+                tokenHolders.set(`${address.toString('hex')}:${topics[3].toString('hex')}`, receiver)
+              }
+            }
+            if (Buffer.compare(sender, Buffer.alloc(20)) === 0 || Buffer.compare(receiver, Buffer.alloc(20)) === 0) {
+              totalSupplyChanges.add(address.toString('hex'))
+            }
           }
         }
       }

@@ -269,3 +269,14 @@ CREATE TABLE `witness` (
   `script` blob NOT NULL,
   PRIMARY KEY (`transaction_id`,`input_index`,`witness_index`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT;
+
+CREATE TABLE `delegation` (
+  `_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `delegator_data` varbinary(32) NOT NULL,
+  `superstaker_data` varbinary(32) NOT NULL,
+  `fee` int(10) unsigned NOT NULL,
+  `is_active` boolean NOT NULL,
+  PRIMARY KEY (`_id`),
+  KEY `delegator` (`delegator_data`),
+  KEY `superstaker` (`superstaker_data`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
