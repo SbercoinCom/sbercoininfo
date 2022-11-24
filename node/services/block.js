@@ -193,12 +193,18 @@ class BlockService extends Service {
       this.logger.warn('Block Service: pausing sync due to config option')
     } else {
       this.#initialSync = true
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
+        let retries = 0 
         let interval = setInterval(() => {
           if (!this.#processingBlock) {
             clearInterval(interval)
             resolve(this._onHeaders())
           }
+
+          if (retries >= 50) reject(`Block Service: processingBlock ${this.#processingBlock}`)
+
+          this.logger.info(`Block Service: processingBlock ${this.#processingBlock}`)
+          retries++
         }, 1000).unref()
       })
     }
