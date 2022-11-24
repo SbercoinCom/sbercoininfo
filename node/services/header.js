@@ -203,7 +203,11 @@ class HeaderService extends Service {
     this.logger.info('Header Service: sync complete')
     this.#initialSync = false
     for (let service of this.node.getServicesByOrder()) {
+      try {
       await service.onHeaders()
+      } catch(err) {
+        this._handleError(err)
+      }
     }
     this.emit('reorg complete')
     this.#reorging = false
@@ -223,6 +227,8 @@ class HeaderService extends Service {
       this.logger.info('Header Service: starting p2p block subscription')
       this.#bus.on('p2p/block', this._queueBlock.bind(this))
       this.#bus.subscribe('p2p/block')
+    } else {
+      this.logger.warn(`Header Service: attempt to start Block Subscriptions failed. Subscribed block is ${this._subscribedBlock}`)
     }
   }
 
